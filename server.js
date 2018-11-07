@@ -34,9 +34,7 @@ var store = require('./routes/store');
 app.use('/', index);
 app.use('/store', store);
 
-var port = process.env.PORT;var
-​
- port = process.env.PORT;
+var port = process.env.PORT;
 app.listen(port, function () {
     console.log('Server running on http://localhost:' + port)
 });
