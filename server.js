@@ -10,11 +10,11 @@ app.use(bodyParser.json());
 
 var methodOverride = require('method-override');
 app.use(methodOverride(function (req, res) {
-	if (req.body && typeof req.body === 'object' && '_method' in req.body) {
-		var method = req.body._method;
-		delete req.body._method;
-		return method;
-	}
+    if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+        var method = req.body._method;
+        delete req.body._method;
+        return method
+    }
 }));
 
 var flash = require('express-flash');
@@ -22,10 +22,10 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 app.use(cookieParser('csci3308'));
 app.use(session({
-	secret: 'csci3308',
-	resave: false,
-	saveUninitialized: true,
-	cookie: {maxAge: 60000}
+    secret: 'csci3308',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {maxAge: 60000}
 }));
 app.use(flash());
 
@@ -34,9 +34,8 @@ var store = require('./routes/store');
 app.use('/', index);
 app.use('/store', store);
 
-var port = process.env.PORT;;
+var port = 4000;
 app.listen(port, function () {
-	console.log('Server running on http://localhost:' + port)
+    console.log('Server running on http://localhost:' + port)
 });
-
 

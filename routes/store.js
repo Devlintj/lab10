@@ -4,25 +4,27 @@ var app = express();
 module.exports = app;
 
 app.get('/', function (request, response) {
-	// TODO: Initialize the query variable with a SQL query
-    	// that returns all the rows and columns in the 'store' table
-	
-	var query = 'SELECT * FROM store';
-	
-	db.any(query)
-		.then(function (rows) {
-		response.render('store/list', {
-			title: 'Store listing',
-			data: rows
-		})
-	})
-	.catch(function (err) {
-		request.flash('error', err);
-		response.render('store/list', {
-			title: 'Store listing',
-			data: ''
-		})
-	})
+
+    // TODO: Initialize the query variable with a SQL query
+    // that returns all the rows and columns in the 'store' table
+    var query = 'select * from store';
+
+    db.any(query)
+      .then(function (rows) {
+          // render views/store/list.ejs template file
+          response.render('store/list', {
+              title: 'Store listing',
+              data: rows
+          })
+      })
+      .catch(function (err) {
+          // display error message in case an error
+          request.flash('error', err);
+          response.render('store/list', {
+              title: 'Store listing',
+              data: ''
+          })
+      })
 });
 
 app.get('/add', function (request, response) {
@@ -42,7 +44,7 @@ app.post('/add', function (request, response) {
     request.assert('qty', 'Quantity is required').notEmpty();
     request.assert('price', 'Price is required').notEmpty();
 
-var errors = request.validationErrors();
+    var errors = request.validationErrors();
     if (!errors) { // No validation errors
         var item = {
             // sanitize() is a function used to prevent Hackers from inserting
@@ -85,6 +87,7 @@ var errors = request.validationErrors();
     }
 });
 
+
 app.get('/edit/(:id)', function (request, response) {
     // Fetch the id of the item from the request.
     var itemId = request.params.id;
@@ -92,8 +95,8 @@ app.get('/edit/(:id)', function (request, response) {
     // TODO: Initialize the query variable with a SQL query
     // that returns all columns of an item whose id = itemId in the
     // 'store' table
-    var query = 'SELECT * FROM store WHERE id='+itemID;
-    db.one(query)
+    var query = 'select * from store where id = $1';
+    db.one(query, itemId)
         .then(function (row) {
             // if item not found
             if (row.length === 0) {
@@ -119,6 +122,7 @@ app.get('/edit/(:id)', function (request, response) {
         })
 });
 
+
 // Route to update values. Notice that request method is PUT here
 app.put('/edit/(:id)', function (req, res) {
     // Validate user input - ensure non emptiness
@@ -136,17 +140,14 @@ app.put('/edit/(:id)', function (req, res) {
             qty: req.sanitize('qty').escape().trim(),
             price: req.sanitize('price').escape().trim()
         };
-
-        // Fetch the id of the item from the request.
-        var itemId = req.params.id;
-
+	var itemId = req.params.id;
         // TODO: Initialize the updateQuery variable with a SQL query
         // that updates the details of an item given its id
         // in the 'store' table
-        var updateQuery = "UPDATE store SET sname='"+item.sname+"', qty="+item.qty", price="+item.price+" WHERE id = " +itemID;
+        var updateQuery = 'UPDATE store SET sname=$1, qty=$2, price=$3 WHERE id = $4;';
 
         // Running SQL query to insert data into the store table
-        db.none(updateQuery)
+        db.none(updateQuery, [item.sname, item.qty, item.price, itemId])
             .then(function (result) {
                 req.flash('success', 'Data updated successfully!');
                 res.redirect('/store');
@@ -175,6 +176,8 @@ app.put('/edit/(:id)', function (req, res) {
     }
 });
 
+
+
 // Route to delete an item. Notice that request method is DELETE here
 app.delete('/delete/(:id)', function (req, res) {
     // Fetch item id of the item to be deleted from the request.
@@ -183,8 +186,8 @@ app.delete('/delete/(:id)', function (req, res) {
     // TODO: Initialize the deleteQuery variable with a SQL query
     // that deletes an item whose id = itemId in the
     // 'store' table
-    var deleteQuery = 'DELETE FROM store WHERE id='+itemId;
-    db.none(deleteQuery)
+    var deleteQuery = 'delete from store where id = $1';
+    db.none(deleteQuery, itemId)
         .then(function (result) {
                   req.flash('success', 'successfully deleted it');
                   res.redirect('/store');
